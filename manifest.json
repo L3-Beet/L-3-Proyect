@@ -1,11 +1,11 @@
 {
   "name": "L-3 Logística",
   "short_name": "L-3",
-  "description": "Tu copiloto en la carretera · Nvo. Laredo",
+  "description": "Tu asistente trailero · Nvo. Laredo",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0d0d0d",
-  "theme_color": "#e63946",
+  "background_color": "#f5f5f5",
+  "theme_color": "#111111",
   "orientation": "portrait",
   "icons": [
     {
