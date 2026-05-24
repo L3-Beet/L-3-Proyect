@@ -122,18 +122,6 @@
     .calc-result { display: none; margin-top: 12px; padding: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 2; }
     .calc-result.show { display: block; }
 
-    /* CHAT IA */
-    .chat-box { background: var(--dark); border: 1px solid var(--border); border-radius: 12px; height: 280px; display: flex; flex-direction: column; margin-bottom: 12px; }
-    .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-    .chat-messages::-webkit-scrollbar { width: 3px; }
-    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); }
-    .mensaje-usuario { align-self: flex-end; background: var(--red); color: #fff; padding: 10px 15px; border-radius: 15px 15px 0 15px; max-width: 85%; font-size: 13px; line-height: 1.4; }
-    .mensaje-ia { align-self: flex-start; background: #333; color: #eee; padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 13px; line-height: 1.4; border-left: 3px solid var(--red); }
-    .chat-input-row { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--border); }
-    .chat-input { flex: 1; background: #222; border: 1px solid var(--border); border-radius: 30px; padding: 10px 16px; color: var(--text); font-size: 13px; outline: none; }
-    .chat-input:focus { border-color: var(--red); }
-    .chat-send { background: var(--red); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 16px; cursor: pointer; flex-shrink: 0; }
-    .chat-send:disabled { opacity: 0.5; }
 
     /* CHAT TRAILEROS */
     .trailero-box { background: var(--dark); border: 1px solid var(--border); border-radius: 12px; height: 220px; display: flex; flex-direction: column; }
@@ -252,8 +240,6 @@
     </div>
     <div style="font-size:10px;color:var(--muted);text-align:center;font-family:'IBM Plex Mono',monospace;">✅ Datos en tiempo real · wttr.in</div>
   </div>
-
-  <!-- CALCULADORA -->
   <div class="section" id="tab-calc">
     <div class="section-title">🧮 CALCULADORA DE GANANCIA</div>
     <input class="calc-input" type="number" id="monto" placeholder="💵 Monto total del viaje ($)"/>
@@ -264,16 +250,7 @@
     <button class="calc-btn" onclick="calcular()">CALCULAR GANANCIA</button>
     <div class="calc-result" id="calcResult"></div>
   </div>
-
-  <!-- CHAT -->
-  <div class="section" id="tab-chat">
-    <div class="section-title">🤖 ASISTENTE IA · JIMENA</div>
-    <div class="chat-box">
-      <div class="chat-messages" id="iaMessages"></div>
-      <div class="chat-input-row">
-        <input class="chat-input" id="iaInput" type="text" placeholder="Pregunta sobre rutas, tráfico, diesel..."/>
-        <button class="chat-send" id="iaBtn" onclick="enviarIA()">➤</button>
-      </div>
+  
     </div>
     <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-align:center;margin-bottom:16px;">🤖 IA trailera · Powered by Gemini</div>
 
@@ -421,56 +398,6 @@
       res.classList.add('show');
     }
 
-    // IA JIMENA
-    var GEMINI_KEY = "AIzaSyCRFT1A3TFpr72SHV1qMdZw8YPlMwt1KRo";
-    var PROMPT_JIMENA = "Eres Jimena, una trailera veterana de Nuevo Laredo que trabaja para L-3 Logística. Hablas con jerga amigable de camionero. Ayudas con: tráfico en rutas NLD→Monterrey, NLD→Matehuala, Laredo TX→San Antonio/Houston/Dallas, tiempos en puentes internacionales, clima en ruta, consejos de diesel, casetas, descanso, mecánica básica, aduana México-USA, cálculo de ganancias. Si preguntan otra cosa, di que solo puedes ayudar con temas de carretera. Responde en español, breve y directo. Usa emojis de camiones.";
-
-    function agregarMensajeIA(rol, texto) {
-      var msgs = document.getElementById('iaMessages');
-      var div = document.createElement('div');
-      div.className = rol === 'user' ? 'mensaje-usuario' : 'mensaje-ia';
-      div.textContent = texto;
-      msgs.appendChild(div);
-      msgs.scrollTop = msgs.scrollHeight;
-      return div;
-    }
-
-    async function enviarIA() {
-      var input = document.getElementById('iaInput');
-      var btn = document.getElementById('iaBtn');
-      var msg = input.value.trim();
-      if (!msg) return;
-      agregarMensajeIA('user', msg);
-      input.value = '';
-      btn.disabled = true;
-      btn.textContent = '...';
-      var typing = agregarMensajeIA('ia', 'Jimena está escribiendo...');
-      try {
-        var res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_KEY, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: PROMPT_JIMENA + '\n\nColega dice: ' + msg }] }],
-            generationConfig: { maxOutputTokens: 300, temperature: 0.8 }
-          })
-        });
-        var data = await res.json();
-        typing.textContent = data.candidates && data.candidates[0] ? data.candidates[0].content.parts[0].text : 'Hubo un corto en los fierros. Intenta de nuevo. 🎙️';
-      } catch(e) {
-        typing.textContent = 'Error de señal. Verifica tu conexión. 📡';
-      }
-      btn.disabled = false;
-      btn.textContent = '➤';
-    }
-
-    document.getElementById('iaInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') enviarIA();
-    });
-
-    document.getElementById('traileroInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') enviarTraileroFB();
-    });
-
     // PWA
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js');
@@ -478,7 +405,6 @@
 
     // INICIO
     window.addEventListener('load', function() {
-      agregarMensajeIA('ia', '¡Qué onda colega! Aquí Jimena en la frecuencia de L-3. ¿Cómo viene el camino? 🚛');
       cargarClima('nld');
     });
   </script>
